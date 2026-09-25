@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#004680">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Postulación a empleo — Formulario</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <span class="hero-badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="7" width="18" height="13" rx="2.5"/>
+          <path d="M8 7V5.5A2.5 2.5 0 0 1 10.5 3h3A2.5 2.5 0 0 1 16 5.5V7"/>
+          <path d="M3 12.5h18"/>
+        </svg>
+      </span>
+      <div class="hero-body">
+        <p class="hero-eyebrow">Bolsa de empleo</p>
+        <h1>Formulario de postulación</h1>
+        <p class="hero-sub">Completa tus datos, elige los cargos que te interesan y adjunta tu hoja de vida en PDF.</p>
+      </div>
+    </header>
+
+    <div class="card">
+      <section id="success" class="success hidden" role="status" aria-live="polite">
+        <span class="success-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </span>
+        <h2>¡Postulación enviada!</h2>
+        <p>Recibimos tus datos y tu hoja de vida. Si tu perfil encaja con alguna vacante, el equipo de selección se pondrá en contacto contigo.</p>
+      </section>
+
+      <form id="application-form" novalidate>
+        <section class="group">
+          <h2 class="group-title">Datos personales</h2>
+
+          <div class="field-row">
+            <div class="field field-float">
+              <select id="document_type" name="document_type" required>
+                <option value="" disabled selected hidden></option>
+                <option value="CC">Cédula de ciudadanía</option>
+                <option value="CE">Cédula de extranjería</option>
+                <option value="PPT">PPT</option>
+                <option value="PA">Pasaporte</option>
+              </select>
+              <label for="document_type" class="float-label">Tipo <span class="req">*</span></label>
+              <p class="field-error" data-error-for="document_type" aria-live="polite"></p>
+            </div>
+
+            <div class="field field-float">
+              <input id="document_number" name="document_number" type="text" autocomplete="off" maxlength="20" placeholder="Ej. 1144123456" required>
+              <label for="document_number" class="float-label">Número de documento <span class="req">*</span></label>
+              <p class="field-error" data-error-for="document_number" aria-live="polite"></p>
+            </div>
+          </div>
+
+          <div class="field field-float">
+            <input id="full_name" name="full_name" type="text" autocomplete="name" maxlength="120" placeholder="Ej. Ana María Pérez Gómez" required>
+            <label for="full_name" class="float-label">Nombre completo <span class="req">*</span></label>
+            <p class="field-error" data-error-for="full_name" aria-live="polite"></p>
+          </div>
+
+          <div class="field field-float">
+            <input id="email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="254" placeholder="tucorreo@ejemplo.com" required>
+            <label for="email" class="float-label">Correo electrónico <span class="req">*</span></label>
+            <p class="field-error" data-error-for="email" aria-live="polite"></p>
+          </div>
+
+          <div class="field field-float">
+            <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="30" placeholder="Ej. 300 123 4567" required>
+            <label for="phone" class="float-label">Teléfono / WhatsApp <span class="req">*</span></label>
+            <p class="field-error" data-error-for="phone" aria-live="polite"></p>
+          </div>
+
+          <div class="field field-float">
+            <select id="city" name="city" required>
+              <option value="" disabled selected hidden></option>
+              <option value="Armenia">Armenia</option>
+              <option value="Bucaramanga">Bucaramanga</option>
+              <option value="Buga">Buga</option>
+              <option value="Cali">Cali</option>
+              <option value="Cartago">Cartago</option>
+              <option value="Ipiales">Ipiales</option>
+              <option value="Jamundí">Jamundí</option>
+              <option value="Manizales">Manizales</option>
+              <option value="Palmira">Palmira</option>
+              <option value="Pasto">Pasto</option>
+              <option value="Pereira">Pereira</option>
+              <option value="Popayán">Popayán</option>
+              <option value="Tuluá">Tuluá</option>
+              <option value="Yumbo">Yumbo</option>
+            </select>
+            <label for="city" class="float-label">Ciudad <span class="req">*</span></label>
+            <p class="field-error" data-error-for="city" aria-live="polite"></p>
+          </div>
+        </section>
+
+        <section class="group">
+
+          <div class="field field-float">
+            <select id="education_level" name="education_level" required>
+              <option value="" disabled selected hidden></option>
+              <option value="nivel_1">Nivel 1</option>
+              <option value="nivel_2">Nivel 2</option>
+              <option value="nivel_3">Nivel 3</option>
+            </select>
+            <label for="education_level" class="float-label">Nivel educativo <span class="req">*</span></label>
+            <p class="field-error" data-error-for="education_level" aria-live="polite"></p>
+          </div>
+
+          <div class="field field-float">
+            <input id="years_experience" name="years_experience" type="number" inputmode="numeric" min="0" max="99" step="1" placeholder="Ej. 3" required>
+            <label for="years_experience" class="float-label">Años de experiencia <span class="req">*</span></label>
+            <p class="field-error" data-error-for="years_experience" aria-live="polite"></p>
+          </div>
+
+          <div class="field field-float">
+            <input id="salary_expectation" name="salary_expectation" type="text" maxlength="60" placeholder="Ej. 800.000 o a convenir">
+            <label for="salary_expectation" class="float-label">Expectativa salarial <span class="optional">(opcional)</span></label>
+            <p class="field-error" data-error-for="salary_expectation" aria-live="polite"></p>
+          </div>
+
+          <fieldset class="field positions">
+            <legend>Cargos a los que postulas <span class="req">*</span></legend>
+            <div class="chip-group">
+              <label class="chip"><input type="checkbox" name="positions" value="Gerente"> Gerente</label>
+              <label class="chip"><input type="checkbox" name="positions" value="Cajero"> Cajero</label>
+              <label class="chip"><input type="checkbox" name="positions" value="Asesor"> Asesor</label>
+              <label class="chip"><input type="checkbox" name="positions" value="Auxiliar de Bodega"> Auxiliar de Bodega</label>
+            </div>
+            <p class="field-error" data-error-for="positions" aria-live="polite"></p>
+          </fieldset>
+        </section>
+
+        <section class="group">
+          <h2 class="group-title">Hoja de vida</h2>
+
+          <div class="field">
+            <label for="cv" class="file-drop">
+              <input id="cv" name="cv" type="file" accept="application/pdf,.pdf" required>
+              <span class="file-drop-icon" aria-hidden="true">
+                <svg class="icon-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 16V4"/>
+                  <path d="m7 9 5-5 5 5"/>
+                  <path d="M5 16v2.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V16"/>
+                </svg>
+                <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 6 9 17l-5-5"/>
+                </svg>
+              </span>
+              <span class="file-drop-text">
+                <strong>Adjunta tu hoja de vida (PDF) <span class="req">*</span></strong>
+                <small id="file-name">Toca para elegir un archivo · máximo 5 MB</small>
+              </span>
+            </label>
+            <p class="field-error" data-error-for="cv" aria-live="polite"></p>
+          </div>
+        </section>
+
+        <div class="field">
+          <label class="consent-box">
+            <input id="data_consent" name="data_consent" type="checkbox" value="true" required>
+            <span>Autorizo a Naranka S.A.S. (KanCan) a tratar mis datos personales y mi hoja de vida para este proceso de selección. <span class="req">*</span></span>
+          </label>
+          <p class="field-error" data-error-for="data_consent" aria-live="polite"></p>
+        </div>
+
+        <p id="form-error" class="form-error" role="alert" aria-live="assertive"></p>
+
+        <button type="submit" id="submit-btn" class="btn-primary">Enviar postulación</button>
+        <p class="hint">Los campos con <span class="req">*</span> son obligatorios.</p>
+      </form>
+    </div>
+
+    <footer class="site-footer">
+      <p>Tus datos y tu hoja de vida se usan únicamente para este proceso de selección y se conservan por un máximo de 6 meses. Puedes conocerlos, actualizarlos, rectificarlos o pedir que se borren escribiendo a [correo de contacto].</p>
+    </footer>
+  </main>
+  <script src="/form.js"></script>
+</body>
+</html>
