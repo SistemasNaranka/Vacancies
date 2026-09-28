@@ -6,9 +6,9 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PHONE_RE = /^\+?[0-9()\-\s]{7,30}$/;
 const EXPERIENCE_RE = /^\d{1,2}$/;
 const MAX_SALARY_LENGTH = 60;
-const DOCUMENT_TYPES = ['CC', 'CE', 'PPT', 'PA'];
+const DOCUMENT_TYPES = ['CC', 'PPT'];
 const DOCUMENT_NUMBER_RE = /^[A-Z0-9]{5,20}$/;
-const EDUCATION_LEVELS = ['nivel_1', 'nivel_2', 'nivel_3'];
+const EDUCATION_LEVELS = ['bachiller', 'tecnico_tecnologo', 'profesional'];
 const CITIES = [
   'Armenia', 'Bucaramanga', 'Buga', 'Cali', 'Cartago', 'Ipiales', 'Jamundí',
   'Manizales', 'Palmira', 'Pasto', 'Pereira', 'Popayán', 'Tuluá', 'Yumbo',
@@ -95,10 +95,6 @@ function validateApplication(body, file) {
 
   if (body.data_consent !== 'true') errors.data_consent = 'Debes aceptar el tratamiento de datos para enviar tu postulación.';
   else data.consent_text = CONSENT_TEXT;
-
-  if (body.data_consent !== 'true') errors.data_consent = 'Debes aceptar el tratamiento de datos para enviar tu postulación.';
-  else data.consent_text = CONSENT_TEXT;
-
   return { ok: Object.keys(errors).length === 0, errors, data };
 }
 

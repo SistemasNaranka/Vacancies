@@ -29,9 +29,9 @@ const BASE_FIELDS = {
   email: 'ana@ejemplo.com',
   phone: '3001234567',
   city: 'Cali',
-  education_level: 'nivel_1',
+  education_level: 'bachiller',
   years_experience: '3',
-  positions: ['Cajero'],
+  positions: ['Cajero vendedor'],
   data_consent: 'true',
 };
 
@@ -63,7 +63,7 @@ function storedFiles(uploadDir) {
 test('CA-01: envío válido crea registro en BD + PDF en carpeta y responde 201', async () => {
   const { app, db, uploadDir } = makeApp();
 
-  const res = await postValid(app, { positions: ['Cajero', 'Asesor'] });
+  const res = await postValid(app, { positions: ['Cajero vendedor', 'Asesor comercial'] });
 
   assert.equal(res.status, 201);
   assert.equal(res.body.ok, true);
@@ -79,7 +79,7 @@ test('CA-01: envío válido crea registro en BD + PDF en carpeta y responde 201'
     .prepare('SELECT position FROM application_positions ORDER BY position')
     .all()
     .map((r) => r.position);
-  assert.deepEqual(positions, ['Asesor', 'Cajero']);
+  assert.deepEqual(positions, ['Asesor comercial', 'Cajero vendedor']);
 
   const files = storedFiles(uploadDir);
   assert.equal(files.length, 1);
@@ -161,21 +161,21 @@ test('CA-04: PDF mayor al límite configurado → 413 sin registro ni archivo', 
 test('CA-05: correo ya postulado al cargo → 409 mencionando el cargo y sin registro nuevo', async () => {
   const { app, db } = makeApp();
 
-  const first = await postValid(app, { positions: ['Cajero'] });
+  const first = await postValid(app, { positions: ['Cajero vendedor'] });
   assert.equal(first.status, 201);
 
-  const dup = await postValid(app, { positions: ['Cajero', 'Asesor'] });
+  const dup = await postValid(app, { positions: ['Cajero vendedor', 'Asesor comercial'] });
 
   assert.equal(dup.status, 409);
-  assert.match(dup.body.message, /Cajero/);
+  assert.match(dup.body.message, /Cajero vendedor/);
   assert.equal(countRows(db), 1); // rechazo total del envío, sin parciales (RF-06)
 });
 
 test('CA-06: mismo correo a un cargo distinto → 201 (re-postulación válida)', async () => {
   const { app, db } = makeApp();
 
-  await postValid(app, { positions: ['Cajero'] });
-  const second = await postValid(app, { positions: ['Asesor'] });
+  await postValid(app, { positions: ['Cajero vendedor'] });
+  const second = await postValid(app, { positions: ['Asesor comercial'] });
 
   assert.equal(second.status, 201);
   assert.equal(countRows(db), 2);
@@ -222,7 +222,7 @@ test('guarda documento normalizado, nivel educativo y prueba de autorización', 
   const row = db.prepare('SELECT * FROM applications WHERE id = ?').get(res.body.id);
   assert.equal(row.document_type, 'CC');
   assert.equal(row.document_number, '1144123456');
-  assert.equal(row.education_level, 'nivel_1');
+  assert.equal(row.education_level, 'bachiller');
   assert.ok(row.consent_accepted_at, 'debe guardar la fecha de aceptación');
   assert.match(row.consent_text, /Naranka/);
 });

@@ -14,10 +14,10 @@ function validBody() {
     email: 'ana@ejemplo.com',
     phone: '+57 300 123 4567',
     city: 'Cali',
-    education_level: 'nivel_1',
+    education_level: 'bachiller',
     years_experience: '3',
     salary_expectation: '',
-    positions: ['Cajero', 'Asesor'],
+    positions: ['Cajero vendedor', 'Asesor comercial'],
     data_consent: 'true',
   };
 }
@@ -28,7 +28,7 @@ test('acepta un payload válido con PDF', () => {
   assert.deepEqual(result.errors, {});
   assert.equal(result.data.years_experience, 3);
   assert.equal(result.data.salary_expectation, null);
-  assert.deepEqual(result.data.positions, ['Cajero', 'Asesor']);
+  assert.deepEqual(result.data.positions, ['Cajero vendedor', 'Asesor comercial']);
   assert.equal(result.data.cv_filename, 'abc.pdf');
 });
 
@@ -84,10 +84,10 @@ test('exige al menos un cargo y valida contra la lista fija', () => {
 
 test('normaliza positions como string único (multipart sin repetir el campo)', () => {
   const body = validBody();
-  body.positions = 'Gerente';
+  body.positions = 'Administrador de tienda';
   const { ok, data } = validateApplication(body, validFile);
   assert.equal(ok, true);
-  assert.deepEqual(data.positions, ['Gerente']);
+  assert.deepEqual(data.positions, ['Administrador de tienda']);
 });
 
 test('sin PDF se rechaza con error en cv', () => {
@@ -99,8 +99,8 @@ test('sin PDF se rechaza con error en cv', () => {
 test('rechaza ciudad, tipo de documento o nivel educativo fuera de la lista', () => {
   const cases = [
     ['city', 'Bogotá'],
-    ['document_type', 'XX'],
-    ['education_level', 'doctorado'],
+    ['document_type', 'PA'],
+    ['education_level', 'nivel_1'],
   ];
   for (const [field, bad] of cases) {
     const body = validBody();

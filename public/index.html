@@ -43,9 +43,7 @@
               <select id="document_type" name="document_type" required>
                 <option value="" disabled selected hidden></option>
                 <option value="CC">Cédula de ciudadanía</option>
-                <option value="CE">Cédula de extranjería</option>
                 <option value="PPT">PPT</option>
-                <option value="PA">Pasaporte</option>
               </select>
               <label for="document_type" class="float-label">Tipo <span class="req">*</span></label>
               <p class="field-error" data-error-for="document_type" aria-live="polite"></p>
@@ -100,13 +98,14 @@
         </section>
 
         <section class="group">
+                    <h2 class="group-title">Perfil profesional</h2>
 
           <div class="field field-float">
             <select id="education_level" name="education_level" required>
               <option value="" disabled selected hidden></option>
-              <option value="nivel_1">Nivel 1</option>
-              <option value="nivel_2">Nivel 2</option>
-              <option value="nivel_3">Nivel 3</option>
+              <option value="bachiller">Bachiller</option>
+              <option value="tecnico_tecnologo">Técnico/Tecnólogo</option>
+              <option value="profesional">Profesional</option>
             </select>
             <label for="education_level" class="float-label">Nivel educativo <span class="req">*</span></label>
             <p class="field-error" data-error-for="education_level" aria-live="polite"></p>
@@ -118,18 +117,12 @@
             <p class="field-error" data-error-for="years_experience" aria-live="polite"></p>
           </div>
 
-          <div class="field field-float">
-            <input id="salary_expectation" name="salary_expectation" type="text" maxlength="60" placeholder="Ej. 800.000 o a convenir">
-            <label for="salary_expectation" class="float-label">Expectativa salarial <span class="optional">(opcional)</span></label>
-            <p class="field-error" data-error-for="salary_expectation" aria-live="polite"></p>
-          </div>
-
           <fieldset class="field positions">
             <legend>Cargos a los que postulas <span class="req">*</span></legend>
             <div class="chip-group">
-              <label class="chip"><input type="checkbox" name="positions" value="Gerente"> Gerente</label>
-              <label class="chip"><input type="checkbox" name="positions" value="Cajero"> Cajero</label>
-              <label class="chip"><input type="checkbox" name="positions" value="Asesor"> Asesor</label>
+              <label class="chip"><input type="checkbox" name="positions" value="Administrador de tienda"> Administrador de tienda</label>
+              <label class="chip"><input type="checkbox" name="positions" value="Cajero vendedor"> Cajero vendedor</label>
+              <label class="chip"><input type="checkbox" name="positions" value="Asesor comercial"> Asesor comercial</label>
               <label class="chip"><input type="checkbox" name="positions" value="Auxiliar de Bodega"> Auxiliar de Bodega</label>
             </div>
             <p class="field-error" data-error-for="positions" aria-live="polite"></p>
@@ -137,6 +130,7 @@
         </section>
 
         <section class="group">
+          
           <h2 class="group-title">Hoja de vida</h2>
 
           <div class="field">

@@ -6,7 +6,7 @@ const rootDir = path.join(__dirname, '..');
 
 /** Lista fija de cargos (RN-03). Debe coincidir con los checkboxes de public/index.html
  *  — ver tests/applications.test.js (test de consistencia). */
-const POSITIONS = ['Gerente', 'Cajero', 'Asesor', 'Auxiliar de Bodega'];
+const POSITIONS = ['Administrador de tienda', 'Cajero vendedor', 'Asesor comercial', 'Auxiliar de Bodega'];
 
 const MAX_PDF_MB = Number(process.env.MAX_PDF_MB || 10);
 
