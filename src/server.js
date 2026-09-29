@@ -1,14 +1,23 @@
 'use strict';
 
 const config = require('./config');
-const { createDb } = require('./db');
 const { createApp } = require('./app');
 
-const db = createDb(config.DB_PATH);
-const app = createApp({ db, uploadDir: config.UPLOAD_DIR });
+// Sin Directus no se puede guardar nada: mejor no arrancar que fallar con cada postulante
+const missing = ['DIRECTUS_URL', 'DIRECTUS_TOKEN', 'DIRECTUS_CV_FOLDER'].filter((k) => !config[k]);
+if (missing.length) {
+  console.error(`Faltan variables en .env: ${missing.join(', ')}`);
+  process.exit(1);
+}
 
-app.listen(config.PORT, () => {
-  console.log(`Postulaciones MVP escuchando en http://localhost:${config.PORT}`);
-  console.log(`  BD:     ${config.DB_PATH}`);
-  console.log(`  PDFs:   ${config.UPLOAD_DIR}`);
+const app = createApp({ uploadDir: config.UPLOAD_DIR });
+
+app.listen(config.PORT, (err) => {
+  if (err) {
+    console.error(`No se pudo abrir el puerto ${config.PORT}: ${err.message}`);
+    process.exit(1);
+  }
+  console.log(`Postulaciones escuchando en http://localhost:${config.PORT}`);
+  console.log(`  Directus: ${config.DIRECTUS_URL} → ${config.DIRECTUS_COLLECTION}`);
+  console.log(`  PDFs temporales: ${config.UPLOAD_DIR}`);
 });

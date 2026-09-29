@@ -7,19 +7,30 @@ const os = require('os');
 const path = require('path');
 const request = require('supertest');
 
-const { createDb } = require('../src/db');
 const { createApp } = require('../src/app');
 const { POSITIONS, MAX_PDF_BYTES } = require('../src/config');
 
 const PDF = Buffer.concat([Buffer.from('%PDF-1.4\n'), Buffer.from('contenido de prueba de hoja de vida')]);
 const NOT_PDF = Buffer.from('MZ\x90\x00 Esto es un ejecutable renombrado');
 
+/** Servicio falso: anota cada envío en vez de llamar a Directus. */
+function makeFakeService({ fail = false } = {}) {
+  const calls = [];
+  return {
+    calls,
+    async submit(data, cvPath) {
+      calls.push({ data, cvPath, fileExisted: fs.existsSync(cvPath) });
+      if (fail) throw new Error('POST /items/app_applications → 500: detalle interno');
+    },
+  };
+}
+
 function makeApp(options = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'postulaciones-'));
-  const db = createDb(path.join(dir, 'test.db'));
   const uploadDir = path.join(dir, 'uploads');
-  const app = createApp({ db, uploadDir, rateLimitMax: options.rateLimitMax ?? 10_000 });
-  return { app, db, uploadDir, dir };
+  const service = makeFakeService({ fail: options.fail });
+  const app = createApp({ uploadDir, service, rateLimitMax: options.rateLimitMax ?? 10_000 });
+  return { app, service, uploadDir };
 }
 
 const BASE_FIELDS = {
@@ -52,43 +63,33 @@ function postValid(app, overrides = {}, file = PDF) {
   return post(app, { ...BASE_FIELDS, ...overrides }, file);
 }
 
-function countRows(db) {
-  return db.prepare('SELECT COUNT(*) AS n FROM applications').get().n;
-}
-
 function storedFiles(uploadDir) {
   return fs.readdirSync(uploadDir);
 }
 
-test('CA-01: envío válido crea registro en BD + PDF en carpeta y responde 201', async () => {
-  const { app, db, uploadDir } = makeApp();
+test('CA-01: envío válido → 201, entrega datos y PDF al servicio y borra la copia local', async () => {
+  const { app, service, uploadDir } = makeApp();
 
   const res = await postValid(app, { positions: ['Cajero vendedor', 'Asesor comercial'] });
 
   assert.equal(res.status, 201);
-  assert.equal(res.body.ok, true);
-  assert.equal(countRows(db), 1);
+  assert.deepEqual(res.body, { ok: true });
+  assert.equal(service.calls.length, 1);
 
-  const row = db.prepare('SELECT * FROM applications WHERE id = ?').get(res.body.id);
-  assert.equal(row.full_name, 'Ana Pérez');
-  assert.equal(row.email, 'ana@ejemplo.com');
-  assert.equal(row.years_experience, 3);
-  assert.equal(row.salary_expectation, null);
+  const { data, cvPath, fileExisted } = service.calls[0];
+  assert.equal(data.full_name, 'Ana Pérez');
+  assert.equal(data.email, 'ana@ejemplo.com');
+  assert.equal(data.years_experience, 3);
+  assert.deepEqual([...data.positions].sort(), ['Asesor comercial', 'Cajero vendedor']);
+  assert.equal('salary_expectation' in data, false);
 
-  const positions = db
-    .prepare('SELECT position FROM application_positions ORDER BY position')
-    .all()
-    .map((r) => r.position);
-  assert.deepEqual(positions, ['Asesor comercial', 'Cajero vendedor']);
-
-  const files = storedFiles(uploadDir);
-  assert.equal(files.length, 1);
-  assert.equal(row.cv_filename, files[0]);
-  assert.match(files[0], /^[0-9a-f-]{36}\.pdf$/); // UUID, sin datos personales (RNF-04)
+  assert.ok(fileExisted, 'el PDF debe existir cuando el servicio lo sube');
+  assert.match(path.basename(cvPath), /^[0-9a-f-]{36}\.pdf$/); // UUID, sin datos personales
+  assert.deepEqual(storedFiles(uploadDir), [], 'la copia local se borra tras subirla');
 });
 
-test('CA-02: campos obligatorios vacíos → 400, sin registro y sin archivo', async () => {
-  const { app, db, uploadDir } = makeApp();
+test('CA-02: campos obligatorios vacíos → 400, sin envío y sin archivo', async () => {
+  const { app, service, uploadDir } = makeApp();
 
   const res = await post(app, {
     full_name: null,
@@ -106,141 +107,122 @@ test('CA-02: campos obligatorios vacíos → 400, sin registro y sin archivo', a
   ]) {
     assert.ok(res.body.errors[field], `falta error para ${field}`);
   }
-  assert.equal(countRows(db), 0);
-  assert.deepEqual(storedFiles(uploadDir), []); // el PDF subido se limpió (RF-07)
+  assert.equal(service.calls.length, 0);
+  assert.deepEqual(storedFiles(uploadDir), []);
 });
 
-test('CA-03: correo con formato inválido → 400 sin crear registro', async () => {
-  const { app, db, uploadDir } = makeApp();
+test('CA-03: correo con formato inválido → 400 sin envío', async () => {
+  const { app, service, uploadDir } = makeApp();
 
   const res = await postValid(app, { email: 'no-es-correo' });
 
   assert.equal(res.status, 400);
   assert.ok(res.body.errors.email);
-  assert.equal(countRows(db), 0);
+  assert.equal(service.calls.length, 0);
   assert.deepEqual(storedFiles(uploadDir), []);
 });
 
-test('CA-04: sin archivo o extensión no PDF → 400/415 sin crear registro', async () => {
-  const { app, db, uploadDir } = makeApp();
+test('CA-04: sin archivo o contenido no PDF → 400/415 sin envío', async () => {
+  const { app, service, uploadDir } = makeApp();
 
-  // (a) sin archivo adjunto
   const noFile = await post(app, BASE_FIELDS, null);
   assert.equal(noFile.status, 400);
   assert.ok(noFile.body.errors.cv);
 
-  // (b) contenido que no es PDF con nombre .pdf → magic bytes (RNF-04)
-  const wrongExt = await post(app, BASE_FIELDS, Buffer.from('hola'));
-  assert.ok([400, 415].includes(wrongExt.status));
+  const wrongContent = await post(app, BASE_FIELDS, Buffer.from('hola'));
+  assert.ok([400, 415].includes(wrongContent.status));
 
-  assert.equal(countRows(db), 0);
+  assert.equal(service.calls.length, 0);
   assert.deepEqual(storedFiles(uploadDir), []);
 });
 
-test('CA-04: .exe renombrado a .pdf → 415 por magic bytes, sin registro', async () => {
-  const { app, db, uploadDir } = makeApp();
+test('CA-04: .exe renombrado a .pdf → 415 por magic bytes, sin envío', async () => {
+  const { app, service, uploadDir } = makeApp();
 
   const res = await post(app, BASE_FIELDS, NOT_PDF);
 
   assert.equal(res.status, 415);
-  assert.equal(countRows(db), 0);
-  assert.deepEqual(storedFiles(uploadDir), []); // limpiado (RF-07)
+  assert.equal(service.calls.length, 0);
+  assert.deepEqual(storedFiles(uploadDir), []);
 });
 
-test('CA-04: PDF mayor al límite configurado → 413 sin registro ni archivo', async () => {
-  const { app, db, uploadDir } = makeApp();
+test('CA-04: PDF mayor al límite configurado → 413 sin envío ni archivo', async () => {
+  const { app, service, uploadDir } = makeApp();
 
   const big = Buffer.concat([Buffer.from('%PDF-1.4\n'), Buffer.alloc(MAX_PDF_BYTES + 1024, 0x61)]);
   const res = await post(app, BASE_FIELDS, big);
 
   assert.equal(res.status, 413);
-  assert.equal(countRows(db), 0);
+  assert.equal(service.calls.length, 0);
   assert.deepEqual(storedFiles(uploadDir), []);
 });
 
-test('CA-05: correo ya postulado al cargo → 409 mencionando el cargo y sin registro nuevo', async () => {
-  const { app, db } = makeApp();
+test('sin anti-duplicados (decisión A): mismo correo y cargo dos veces → ambos 201', async () => {
+  const { app, service } = makeApp();
 
-  const first = await postValid(app, { positions: ['Cajero vendedor'] });
+  const first = await postValid(app);
+  const second = await postValid(app);
+
   assert.equal(first.status, 201);
-
-  const dup = await postValid(app, { positions: ['Cajero vendedor', 'Asesor comercial'] });
-
-  assert.equal(dup.status, 409);
-  assert.match(dup.body.message, /Cajero vendedor/);
-  assert.equal(countRows(db), 1); // rechazo total del envío, sin parciales (RF-06)
-});
-
-test('CA-06: mismo correo a un cargo distinto → 201 (re-postulación válida)', async () => {
-  const { app, db } = makeApp();
-
-  await postValid(app, { positions: ['Cajero vendedor'] });
-  const second = await postValid(app, { positions: ['Asesor comercial'] });
-
   assert.equal(second.status, 201);
-  assert.equal(countRows(db), 2);
-});
-
-test('CA-07: expectativa salarial omitida → 201 con valor NULL', async () => {
-  const { app, db } = makeApp();
-
-  const res = await postValid(app, { salary_expectation: null });
-
-  assert.equal(res.status, 201);
-  const row = db.prepare('SELECT salary_expectation FROM applications WHERE id = ?').get(res.body.id);
-  assert.equal(row.salary_expectation, null);
+  assert.equal(service.calls.length, 2);
 });
 
 test('CA-08: años de experiencia no numéricos o negativos → 400', async () => {
-  const { app, db } = makeApp();
+  const { app, service } = makeApp();
 
   for (const bad of ['abc', '-1']) {
     const res = await postValid(app, { years_experience: bad });
     assert.equal(res.status, 400, `debería rechazar "${bad}"`);
     assert.ok(res.body.errors.years_experience);
   }
-  assert.equal(countRows(db), 0);
+  assert.equal(service.calls.length, 0);
 });
 
-test('sin autorización de datos → 400 sin registro ni archivo', async () => {
-  const { app, db, uploadDir } = makeApp();
+test('sin autorización de datos → 400 sin envío ni archivo', async () => {
+  const { app, service, uploadDir } = makeApp();
 
   const res = await postValid(app, { data_consent: null });
 
   assert.equal(res.status, 400);
   assert.ok(res.body.errors.data_consent);
-  assert.equal(countRows(db), 0);
+  assert.equal(service.calls.length, 0);
   assert.deepEqual(storedFiles(uploadDir), []);
 });
 
-test('guarda documento normalizado, nivel educativo y prueba de autorización', async () => {
-  const { app, db } = makeApp();
+test('entrega documento normalizado, nivel educativo y texto de autorización', async () => {
+  const { app, service } = makeApp();
 
   const res = await postValid(app, { document_number: '1.144.123.456' });
 
   assert.equal(res.status, 201);
-  const row = db.prepare('SELECT * FROM applications WHERE id = ?').get(res.body.id);
-  assert.equal(row.document_type, 'CC');
-  assert.equal(row.document_number, '1144123456');
-  assert.equal(row.education_level, 'bachiller');
-  assert.ok(row.consent_accepted_at, 'debe guardar la fecha de aceptación');
-  assert.match(row.consent_text, /Naranka/);
+  const { data } = service.calls[0];
+  assert.equal(data.document_type, 'CC');
+  assert.equal(data.document_number, '1144123456');
+  assert.equal(data.education_level, 'bachiller');
+  assert.match(data.consent_text, /Naranka/);
 });
 
 test('RNF: preserva caracteres UTF-8 (acentos y ñ) en los datos', async () => {
-  const { app, db } = makeApp();
+  const { app, service } = makeApp();
 
-  const res = await postValid(app, {
-    full_name: 'José Muñoz',
-    city: 'Popayán',
-    salary_expectation: '2.500.000',
-  });
+  const res = await postValid(app, { full_name: 'José Muñoz', city: 'Popayán' });
 
   assert.equal(res.status, 201);
-  const row = db.prepare('SELECT full_name, city, salary_expectation FROM applications WHERE id = ?').get(res.body.id);
-  assert.equal(row.full_name, 'José Muñoz');
-  assert.equal(row.city, 'Popayán');
-  assert.equal(row.salary_expectation, '2.500.000');
+  const { data } = service.calls[0];
+  assert.equal(data.full_name, 'José Muñoz');
+  assert.equal(data.city, 'Popayán');
+});
+
+test('Directus falla → 502 con mensaje genérico y sin copia local', async () => {
+  const { app, uploadDir } = makeApp({ fail: true });
+
+  const res = await postValid(app);
+
+  assert.equal(res.status, 502);
+  assert.equal(res.body.ok, false);
+  assert.doesNotMatch(res.body.message, /items|Directus|500/, 'no debe filtrar detalles internos');
+  assert.deepEqual(storedFiles(uploadDir), []);
 });
 
 test('GET /api/health responde 200', async () => {

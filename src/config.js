@@ -20,7 +20,6 @@ const MAX_PDF_MB = Number(process.env.MAX_PDF_MB || 5);
 module.exports = {
   rootDir,
   PORT: Number(process.env.PORT || 3000),
-  DB_PATH: process.env.DB_PATH || path.join(rootDir, 'data', 'app.db'),
   UPLOAD_DIR: process.env.UPLOAD_DIR || path.join(rootDir, 'uploads'),
   POSITIONS,
   MAX_PDF_MB,

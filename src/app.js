@@ -9,10 +9,10 @@ const config = require('./config');
 const { createApplicationsRouter, cleanupUploads } = require('./routes/applications');
 
 /**
- * Fábrica de la aplicación (permite tests con BD y carpeta temporales).
- * @param {{ db: import('better-sqlite3').Database, uploadDir?: string, rateLimitMax?: number }} deps
+ * Fábrica de la aplicación (permite tests con carpeta temporal).
+ * @param {{ uploadDir?: string, rateLimitMax?: number, service?: object }} [deps]
  */
-function createApp({ db, uploadDir = config.UPLOAD_DIR, rateLimitMax = config.RATE_LIMIT_MAX }) {
+function createApp({ uploadDir = config.UPLOAD_DIR, rateLimitMax = config.RATE_LIMIT_MAX, service } = {}) {
   const app = express();
   app.disable('x-powered-by');
   app.set('trust proxy', config.TRUST_PROXY);
@@ -46,12 +46,12 @@ function createApp({ db, uploadDir = config.UPLOAD_DIR, rateLimitMax = config.RA
 
   app.get('/api/health', (req, res) => res.json({ ok: true }));
 
-  app.use(createApplicationsRouter({ db, uploadDir }));
+  app.use(createApplicationsRouter({ uploadDir, service }));
 
   // 404 para rutas /api inexistentes (las de afuera las resuelve express.static)
   app.use('/api', (req, res) => res.status(404).json({ ok: false, message: 'Recurso no encontrado.' }));
 
-  // Manejador de errores: multer (413/415), ConflictError (409) y errores con status
+  // Manejador de errores: multer (413/415) y errores con status
   app.use((err, req, res, next) => {
     if (res.headersSent) return next(err);
 

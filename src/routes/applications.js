@@ -24,9 +24,8 @@ function cleanupUploads(req) {
   req.uploadedFiles = [];
 }
 
-function createApplicationsRouter({ uploadDir }) {
+function createApplicationsRouter({ uploadDir, service = createApplicationService() }) {
   const router = express.Router();
-  const service = createApplicationService();
   fs.mkdirSync(uploadDir, { recursive: true });
 
   const diskStorage = multer.diskStorage({

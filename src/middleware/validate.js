@@ -5,7 +5,7 @@ const { POSITIONS } = require('../config');
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PHONE_RE = /^\+?[0-9()\-\s]{7,30}$/;
 const EXPERIENCE_RE = /^\d{1,2}$/;
-const MAX_SALARY_LENGTH = 60;
+
 const DOCUMENT_TYPES = ['CC', 'PPT'];
 const DOCUMENT_NUMBER_RE = /^[A-Z0-9]{5,20}$/;
 const EDUCATION_LEVELS = ['bachiller', 'tecnico_tecnologo', 'profesional'];
@@ -74,13 +74,6 @@ function validateApplication(body, file) {
   if (!experience) errors.years_experience = 'Los años de experiencia son obligatorios.';
   else if (!EXPERIENCE_RE.test(experience)) errors.years_experience = 'Debe ser un número entero entre 0 y 99.';
   else data.years_experience = Number(experience);
-
-  const salary = text(body.salary_expectation);
-  if (salary && salary.length > MAX_SALARY_LENGTH) {
-    errors.salary_expectation = `Máximo ${MAX_SALARY_LENGTH} caracteres.`;
-  } else {
-    data.salary_expectation = salary || null; // opcional (P-1)
-  }
 
   const positions = normalizePositions(body.positions);
   if (positions.length === 0) errors.positions = 'Selecciona al menos un cargo.';

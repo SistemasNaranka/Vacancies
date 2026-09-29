@@ -16,7 +16,6 @@ function validBody() {
     city: 'Cali',
     education_level: 'bachiller',
     years_experience: '3',
-    salary_expectation: '',
     positions: ['Cajero vendedor', 'Asesor comercial'],
     data_consent: 'true',
   };
@@ -27,7 +26,6 @@ test('acepta un payload válido con PDF', () => {
   assert.equal(result.ok, true);
   assert.deepEqual(result.errors, {});
   assert.equal(result.data.years_experience, 3);
-  assert.equal(result.data.salary_expectation, null);
   assert.deepEqual(result.data.positions, ['Cajero vendedor', 'Asesor comercial']);
   assert.equal(result.data.cv_filename, 'abc.pdf');
 });
@@ -50,7 +48,6 @@ test('campos obligatorios vacíos generan errores por campo', () => {
   assert.ok(errors.years_experience);
   assert.ok(errors.positions);
   assert.ok(errors.cv);
-  assert.equal(errors.salary_expectation, undefined); // opcional
 });
 
 test('rechaza correo con formato inválido', () => {
