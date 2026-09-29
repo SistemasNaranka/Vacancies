@@ -4,11 +4,18 @@ const path = require('path');
 
 const rootDir = path.join(__dirname, '..');
 
+// Carga .env antes de leer cualquier variable. Si no existe, se usan los valores por defecto.
+try {
+  process.loadEnvFile(path.join(rootDir, '.env'));
+} catch (err) {
+  if (err.code !== 'ENOENT') throw err;
+}
+
 /** Lista fija de cargos (RN-03). Debe coincidir con los checkboxes de public/index.html
  *  — ver tests/applications.test.js (test de consistencia). */
 const POSITIONS = ['Administrador de tienda', 'Cajero vendedor', 'Asesor comercial', 'Auxiliar de Bodega'];
 
-const MAX_PDF_MB = Number(process.env.MAX_PDF_MB || 10);
+const MAX_PDF_MB = Number(process.env.MAX_PDF_MB || 5);
 
 module.exports = {
   rootDir,
@@ -23,4 +30,8 @@ module.exports = {
   // El MVP se sirve por HTTP (LAN o IP pública). Solo activar con HTTPS real,
   // porque 'upgrade-insecure-requests' rompe los subrecursos en HTTP no-localhost.
   ENFORCE_HTTPS: process.env.ENFORCE_HTTPS === '1',
+  DIRECTUS_URL: process.env.DIRECTUS_URL,
+  DIRECTUS_TOKEN: process.env.DIRECTUS_TOKEN,
+  DIRECTUS_COLLECTION: process.env.DIRECTUS_COLLECTION || 'app_applications',
+  DIRECTUS_CV_FOLDER: process.env.DIRECTUS_CV_FOLDER,
 };

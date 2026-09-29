@@ -24,9 +24,9 @@ function cleanupUploads(req) {
   req.uploadedFiles = [];
 }
 
-function createApplicationsRouter({ db, uploadDir }) {
+function createApplicationsRouter({ uploadDir }) {
   const router = express.Router();
-  const service = createApplicationService(db);
+  const service = createApplicationService();
   fs.mkdirSync(uploadDir, { recursive: true });
 
   const diskStorage = multer.diskStorage({
@@ -76,15 +76,20 @@ function createApplicationsRouter({ db, uploadDir }) {
         return res.status(400).json({ ok: false, errors });
       }
 
-      let id;
       try {
-        id = service.submit(data); // transacción: anti-duplicados + inserts
+        await service.submit(data, req.file.path);
       } catch (err) {
-        cleanupUploads(req);
-        throw err;
+        // El detalle técnico va a la terminal; al postulante, un mensaje claro
+        console.error('[postulaciones] Error guardando en Directus:', err.message);
+        return res.status(502).json({
+          ok: false,
+          message: 'No pudimos guardar tu postulación. Intenta de nuevo en unos minutos.',
+        });
+      } finally {
+        cleanupUploads(req); // la copia local nunca se conserva
       }
 
-      return res.status(201).json({ ok: true, id });
+      return res.status(201).json({ ok: true });
     } catch (err) {
       return next(err);
     }
