@@ -149,4 +149,3 @@ if (cvInput) {
   });
 }
 
-document.getElementById('new-application').addEventListener('click', () => window.location.reload());
