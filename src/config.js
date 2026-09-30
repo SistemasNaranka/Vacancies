@@ -11,7 +11,7 @@ try {
   if (err.code !== 'ENOENT') throw err;
 }
 
-/** Lista fija de cargos (RN-03). Debe coincidir con los checkboxes de public/index.html
+/** Lista fija de cargos (RN-03). Debe coincidir con las opciones del select de cargo en public/index.html
  *  — ver tests/applications.test.js (test de consistencia). */
 const POSITIONS = ['Administrador de tienda', 'Cajero vendedor', 'Asesor comercial', 'Auxiliar de Bodega'];
 

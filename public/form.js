@@ -54,8 +54,7 @@ function validateClient() {
   if (exp === '') errors.years_experience = 'Indica tus años de experiencia.';
   else if (!/^\d{1,2}$/.test(exp)) errors.years_experience = 'Debe ser un número entre 0 y 99.';
 
-  const positions = [...form.querySelectorAll('input[name="positions"]:checked')];
-  if (positions.length === 0) errors.positions = 'Selecciona al menos un cargo.';
+  if (!value('positions')) errors.positions = 'Selecciona un cargo.';
 
   const file = form.elements.cv.files[0];
   if (!file) errors.cv = 'Adjunta tu hoja de vida en PDF.';

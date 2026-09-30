@@ -78,6 +78,12 @@ function createApplicationsRouter({ uploadDir, service = createApplicationServic
       try {
         await service.submit(data, req.file.path);
       } catch (err) {
+        if (err.extensions?.code === 'RECORD_NOT_UNIQUE' && err.extensions?.field === 'document_number') {
+          return res.status(409).json({
+            ok: false,
+            message: 'Ya tienes una postulación registrada con este número de documento.',
+          });
+        }
         // El detalle técnico va a la terminal; al postulante, un mensaje claro
         console.error('[postulaciones] Error guardando en Directus:', err.message);
         return res.status(502).json({

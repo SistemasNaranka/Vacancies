@@ -113,22 +113,22 @@
           </div>
 
           <div class="field field-float">
+            <select id="positions" name="positions" required>
+              <option value="" disabled selected hidden></option>
+              <option value="Administrador de tienda">Administrador de tienda</option>
+              <option value="Cajero vendedor">Cajero vendedor</option>
+              <option value="Asesor comercial">Asesor comercial</option>
+              <option value="Auxiliar de Bodega">Auxiliar de Bodega</option>
+            </select>
+            <label for="positions" class="float-label">Cargo <span class="req">*</span></label>
+            <p class="field-error" data-error-for="positions" aria-live="polite"></p>
+          </div>
+
+          <div class="field field-float">
             <input id="years_experience" name="years_experience" type="number" inputmode="numeric" min="0" max="99" step="1" placeholder="Ej. 3" required>
             <label for="years_experience" class="float-label">Años de experiencia <span class="req">*</span></label>
             <p class="field-error" data-error-for="years_experience" aria-live="polite"></p>
           </div>
-
-          <fieldset class="field positions">
-            <legend>Cargos a los que postulas <span class="req">*</span></legend>
-            <div class="chip-group">
-              <label class="chip"><input type="checkbox" name="positions" value="Administrador de tienda"> Administrador de tienda</label>
-              <label class="chip"><input type="checkbox" name="positions" value="Cajero vendedor"> Cajero vendedor</label>
-              <label class="chip"><input type="checkbox" name="positions" value="Asesor comercial"> Asesor comercial</label>
-              <label class="chip"><input type="checkbox" name="positions" value="Auxiliar de Bodega"> Auxiliar de Bodega</label>
-            </div>
-            <p class="field-error" data-error-for="positions" aria-live="polite"></p>
-          </fieldset>
-        </section>
 
         <section class="group">
           

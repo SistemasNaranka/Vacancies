@@ -7,11 +7,12 @@ const TIMEOUT_MS = 15000;
 
 /** Error de comunicación con Directus. Lleva el mensaje real para la terminal. */
 class DirectusError extends Error {
-  constructor(message, directusStatus) {
+  constructor(message, directusStatus, extensions) {
     super(message);
     this.name = 'DirectusError';
     this.status = 502;
     this.directusStatus = directusStatus;
+    this.extensions = extensions || {}; // p. ej. { code: 'RECORD_NOT_UNIQUE', field: 'document_number' }
   }
 }
 
@@ -38,7 +39,7 @@ async function request(method, path, { json, form, query } = {}) {
   const payload = res.status === 204 ? null : await res.json().catch(() => null);
   if (!res.ok) {
     const detail = payload?.errors?.map((e) => e.message).join(' | ') || res.statusText;
-    throw new DirectusError(`${method} ${path} → ${res.status}: ${detail}`, res.status);
+    throw new DirectusError(`${method} ${path} → ${res.status}: ${detail}`, res.status, payload?.errors?.[0]?.extensions);
   }
   return payload?.data ?? null;
 }

@@ -14,12 +14,13 @@ const PDF = Buffer.concat([Buffer.from('%PDF-1.4\n'), Buffer.from('contenido de 
 const NOT_PDF = Buffer.from('MZ\x90\x00 Esto es un ejecutable renombrado');
 
 /** Servicio falso: anota cada envío en vez de llamar a Directus. */
-function makeFakeService({ fail = false } = {}) {
+function makeFakeService({ fail = false, failWith = null } = {}) {
   const calls = [];
   return {
     calls,
     async submit(data, cvPath) {
       calls.push({ data, cvPath, fileExisted: fs.existsSync(cvPath) });
+      if (failWith) throw failWith;
       if (fail) throw new Error('POST /items/app_applications → 500: detalle interno');
     },
   };
@@ -28,7 +29,7 @@ function makeFakeService({ fail = false } = {}) {
 function makeApp(options = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'postulaciones-'));
   const uploadDir = path.join(dir, 'uploads');
-  const service = makeFakeService({ fail: options.fail });
+  const service = makeFakeService({ fail: options.fail, failWith: options.failWith });
   const app = createApp({ uploadDir, service, rateLimitMax: options.rateLimitMax ?? 10_000 });
   return { app, service, uploadDir };
 }
@@ -239,9 +240,10 @@ test('GET / sirve el formulario y sus cargos coinciden con config (consistencia)
   assert.equal(res.status, 200);
   assert.match(res.text, /<form id="application-form"/);
 
-  const htmlPositions = [...res.text.matchAll(/<input type="checkbox" name="positions" value="([^"]+)">/g)].map(
-    (m) => m[1]
-  );
+  // Solo el <select> de cargos, para no tomar opciones de ciudad o nivel educativo
+  const selectCargos = res.text.match(/<select id="positions"[\s\S]*?<\/select>/)?.[0] ?? '';
+  const htmlPositions = [...selectCargos.matchAll(/<option value="([^"]+)"/g)].map((m) => m[1]);
+
   assert.deepEqual(htmlPositions, POSITIONS, 'index.html y config.POSITIONS deben listar los mismos cargos');
 });
 
@@ -284,4 +286,17 @@ test('rate limit: superado el límite responde 429', async () => {
   const third = await request(app).get('/api/health');
 
   assert.equal(third.status, 429);
+});
+
+test('cédula repetida (Directus RECORD_NOT_UNIQUE) → 409 con mensaje claro', async () => {
+  const duplicate = Object.assign(new Error('duplicado'), {
+    extensions: { code: 'RECORD_NOT_UNIQUE', field: 'document_number' },
+  });
+  const { app, uploadDir } = makeApp({ failWith: duplicate });
+
+  const res = await postValid(app);
+
+  assert.equal(res.status, 409);
+  assert.match(res.body.message, /documento/);
+  assert.deepEqual(storedFiles(uploadDir), []);
 });
