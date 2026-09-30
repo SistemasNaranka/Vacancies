@@ -4,3 +4,8 @@ uploads/
 *.log
 .env
 .DS_Store
+
+# Cualquier archivo de entorno (.env, .env.bak, .env.produccion...), menos la plantilla
+.env
+.env.*
+!.env.example
