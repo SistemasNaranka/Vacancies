@@ -1,21 +1,22 @@
 /* ============================================================
    Postulaciones — hoja de estilos (mobile-first)
    Rediseño visual: jerarquía, espaciado, marca y estados.
+   Paleta: Naranja Quemado (#d85321).
    Sin dependencias externas (tipografía del sistema).
    ============================================================ */
 
 :root {
   color-scheme: light;
 
-  /* Marca — color corporativo #004680 y su escala derivada (mismo tono, ~207°) */
-  --brand-rgb: 0, 70, 128;
-  --brand-50: #eef5fb;
-  --brand-100: #d7e8f6;
-  --brand-200: #a9cde8;
-  --brand-500: #0066ad;
-  --brand-600: #004680; /* color corporativo */
-  --brand-700: #00385f;
-  --brand-800: #002a45;
+  /* Marca — Naranja Quemado y su escala derivada (~22°) */
+  --brand-rgb: 216, 83, 33;
+  --brand-50: #fef4ef;
+  --brand-100: #fce4d8;
+  --brand-200: #f9c5ae;
+  --brand-500: #e8652e;
+  --brand-600: #d85321; /* color corporativo */
+  --brand-700: #b8431a;
+  --brand-800: #8f3312;
 
   /* Neutros */
   --ink-900: #0f172a;
@@ -79,7 +80,7 @@ body {
 .hero {
   display: flex;
   gap: 0.9rem;
-  align-items: flex-start;
+  align-items: center;
   padding: 1.3rem 1.3rem 1.35rem;
   margin-bottom: 1rem;
   border-radius: var(--radius-lg);
@@ -88,18 +89,26 @@ body {
   box-shadow: 0 20px 36px -24px rgba(var(--brand-rgb), 0.9);
 }
 
-.hero-badge {
+.hero-logo {
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  width: 2.7rem;
-  height: 2.7rem;
-  border-radius: 15px;
-  background: rgba(255, 255, 255, 0.16);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  width: 4.2rem;
+  height: 4.2rem;
+  padding: 0.5rem;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 8px 18px -10px rgba(15, 23, 42, 0.5);
 }
 
-.hero-badge svg { width: 1.5rem; height: 1.5rem; }
+.hero-logo img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
 
 .hero-eyebrow {
   margin: 0 0 0.2rem;
@@ -221,7 +230,6 @@ select:focus {
   border-color: var(--brand-600);
   box-shadow: 0 0 0 4px var(--brand-100);
 }
-
 
 /* ---------- Etiqueta flotante ---------- */
 
@@ -651,7 +659,7 @@ button { font: inherit; cursor: pointer; }
   body { padding: 2.5rem 1.5rem 4rem; }
   .hero { padding: 1.6rem 1.7rem; }
   .hero h1 { font-size: 1.6rem; }
-  .hero-badge { width: 3rem; height: 3rem; }
+  .hero-logo { width: 5rem; height: 5rem; }
   .card { padding: 1.9rem 1.8rem 2rem; }
 }
 
