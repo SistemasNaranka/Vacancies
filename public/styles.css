@@ -165,7 +165,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--brand-700);
+  color: var(--brand-600);
 }
 
 .group-title::before {
@@ -173,7 +173,7 @@ body {
   width: 0.4rem;
   height: 0.4rem;
   border-radius: 50%;
-  background: var(--brand-500);
+  background: var(--brand-600);
 }
 
 /* ---------- Campos ---------- */
