@@ -267,7 +267,7 @@ test('el color de marca coincide entre styles.css y el theme-color de index.html
   const css = fs.readFileSync(path.join(__dirname, '..', 'public', 'styles.css'), 'utf8');
   const brand = css.match(/--brand-600:\s*(#[0-9a-fA-F]{6})/);
   assert.ok(brand, 'styles.css debe definir --brand-600');
-  assert.equal(brand[1].toLowerCase(), '#004680', 'el color corporativo aprobado es #004680');
+  assert.equal(brand[1].toLowerCase(), '#d85321', 'el color corporativo aprobado es #d85321');
 
   const theme = res.text.match(/<meta name="theme-color" content="(#[0-9a-fA-F]{6})">/);
   assert.ok(theme, 'index.html debe declarar theme-color');

@@ -24,6 +24,19 @@ function cleanupUploads(req) {
   req.uploadedFiles = [];
 }
 
+// Campo único en Directus → mensaje para el postulante
+const DUPLICATE_MESSAGES = {
+  document_number: 'Ya tienes una postulación registrada con este número de documento.',
+  email: 'Ya tienes una postulación registrada con este correo.',
+};
+
+/** Devuelve el mensaje si el error es un duplicado; si no, null. */
+function duplicateMessage(err) {
+  const { code, field } = err?.extensions ?? {};
+  if (code !== 'RECORD_NOT_UNIQUE') return null;
+  return DUPLICATE_MESSAGES[field] ?? 'Ya tienes una postulación registrada con estos datos.';
+}
+
 function createApplicationsRouter({ uploadDir, service = createApplicationService() }) {
   const router = express.Router();
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -78,11 +91,9 @@ function createApplicationsRouter({ uploadDir, service = createApplicationServic
       try {
         await service.submit(data, req.file.path);
       } catch (err) {
-        if (err.extensions?.code === 'RECORD_NOT_UNIQUE' && err.extensions?.field === 'document_number') {
-          return res.status(409).json({
-            ok: false,
-            message: 'Ya tienes una postulación registrada con este número de documento.',
-          });
+        const dupMsg = duplicateMessage(err);
+        if (dupMsg) {
+          return res.status(409).json({ ok: false, message: dupMsg });
         }
         // El detalle técnico va a la terminal; al postulante, un mensaje claro
         console.error('[postulaciones] Error guardando en Directus:', err.message);
