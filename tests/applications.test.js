@@ -314,3 +314,17 @@ test('cédula repetida (Directus RECORD_NOT_UNIQUE) → 409 con mensaje claro', 
   assert.match(res.body.message, /documento/);
   assert.deepEqual(storedFiles(uploadDir), []);
 });
+
+test('multipart inflado (demasiados campos o campo gigante) → 400 sin envío ni archivo', async () => {
+  const { app, service, uploadDir } = makeApp();
+
+  const extra = Object.fromEntries(Array.from({ length: 25 }, (_, i) => [`basura${i}`, 'x']));
+  const tooMany = await postValid(app, extra);
+  assert.equal(tooMany.status, 400);
+
+  const tooBig = await postValid(app, { full_name: 'a'.repeat(11 * 1024) });
+  assert.equal(tooBig.status, 400);
+
+  assert.equal(service.calls.length, 0);
+  assert.deepEqual(storedFiles(uploadDir), []);
+});
