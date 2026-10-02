@@ -4,6 +4,29 @@ const fs = require('fs');
 const { DIRECTUS_URL, DIRECTUS_TOKEN, DIRECTUS_CV_FOLDER } = require('./config');
 
 const TIMEOUT_MS = 15000;
+const TZ_COLOMBIA = 'America/Bogota';
+
+/**
+ * Devuelve la hora de Colombia como "YYYY-MM-DDTHH:mm:ss" (sin zona),
+ * que es el formato que espera un campo "Fecha y hora" de Directus.
+ * Si recibe una fecha (ISO/UTC) la convierte; si no, usa la hora actual.
+ */
+function enColombia(valor) {
+  let fecha = valor ? new Date(valor) : new Date();
+  if (Number.isNaN(fecha.getTime())) fecha = new Date();
+  return new Intl.DateTimeFormat('sv-SE', {
+    timeZone: TZ_COLOMBIA,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  })
+    .format(fecha)
+    .replace(' ', 'T');
+}
 
 /** Error de comunicación con Directus. Lleva el mensaje real para la terminal. */
 class DirectusError extends Error {
@@ -57,7 +80,15 @@ async function uploadFile(filePath, downloadName) {
 }
 
 const deleteFile = (id) => request('DELETE', `/files/${id}`);
-const createItem = (collection, data) => request('POST', `/items/${collection}`, { json: data });
+
+const createItem = (collection, data) => {
+  const payload =
+    collection === 'app_applications'
+      ? { ...data, consent_accepted_at: enColombia(data.consent_accepted_at) }
+      : data;
+  return request('POST', `/items/${collection}`, { json: payload });
+};
+
 const readItems = (collection, query) => request('GET', `/items/${collection}`, { query });
 
-module.exports = { uploadFile, deleteFile, createItem, readItems, DirectusError };
+module.exports = { uploadFile, deleteFile, createItem, readItems, DirectusError, enColombia };
