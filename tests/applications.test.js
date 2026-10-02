@@ -281,11 +281,25 @@ test('el color de marca coincide entre styles.css y el theme-color de index.html
 test('rate limit: superado el límite responde 429', async () => {
   const { app } = makeApp({ rateLimitMax: 2 });
 
-  await request(app).get('/api/health');
-  await request(app).get('/api/health');
-  const third = await request(app).get('/api/health');
+  // Ruta inexistente bajo /api: pasa por el limitador (404) sin tocar el servicio
+  await request(app).get('/api/no-existe');
+  await request(app).get('/api/no-existe');
+  const third = await request(app).get('/api/no-existe');
 
   assert.equal(third.status, 429);
+});
+
+test('health no consume el rate limit (el health check de Coolify nunca recibe 429)', async () => {
+  const { app } = makeApp({ rateLimitMax: 2 });
+
+  const responses = await Promise.all(
+    Array.from({ length: 5 }, () => request(app).get('/api/health'))
+  );
+  for (const res of responses) assert.equal(res.status, 200);
+
+  // Health no gastó cupo: la API sigue disponible para postulantes
+  const api = await request(app).get('/api/no-existe');
+  assert.equal(api.status, 404);
 });
 
 test('cédula repetida (Directus RECORD_NOT_UNIQUE) → 409 con mensaje claro', async () => {
