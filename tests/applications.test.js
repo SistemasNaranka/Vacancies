@@ -158,15 +158,17 @@ test('CA-04: PDF mayor al límite configurado → 413 sin envío ni archivo', as
   assert.deepEqual(storedFiles(uploadDir), []);
 });
 
-test('sin anti-duplicados (decisión A): mismo correo y cargo dos veces → ambos 201', async () => {
-  const { app, service } = makeApp();
+test('correo repetido (Directus RECORD_NOT_UNIQUE en email) → 409 con mensaje de correo', async () => {
+  const duplicate = Object.assign(new Error('duplicado'), {
+    extensions: { code: 'RECORD_NOT_UNIQUE', field: 'email' },
+  });
+  const { app, uploadDir } = makeApp({ failWith: duplicate });
 
-  const first = await postValid(app);
-  const second = await postValid(app);
+  const res = await postValid(app);
 
-  assert.equal(first.status, 201);
-  assert.equal(second.status, 201);
-  assert.equal(service.calls.length, 2);
+  assert.equal(res.status, 409);
+  assert.match(res.body.message, /correo/);
+  assert.deepEqual(storedFiles(uploadDir), []);
 });
 
 test('CA-08: años de experiencia no numéricos o negativos → 400', async () => {

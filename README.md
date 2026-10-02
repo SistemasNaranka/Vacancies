@@ -40,7 +40,7 @@ npm test               # 23 pruebas: validación, API, duplicados, límites, CSP
 | `DB_PATH` | `./data/app.db` | Ruta de la base SQLite |
 | `UPLOAD_DIR` | `./uploads` | Carpeta de los PDFs |
 | `RATE_LIMIT_MAX` | 10 | Peticiones/min por IP en la API |
-| `MAX_PDF_MB` | 10 | Tamaño máximo del PDF |
+| `MAX_PDF_MB` | 5 | Tamaño máximo del PDF |
 | `TRUST_PROXY` | 1 | Saltos de proxy confiables (para rate limit detrás de proxy) |
 | `ENFORCE_HTTPS` | `0` | `1` solo si el sitio se sirve con HTTPS real. Activa la directiva CSP `upgrade-insecure-requests`; con HTTP plano (LAN o IP pública) deja la página sin CSS ni JS |
 
