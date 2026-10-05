@@ -6,7 +6,7 @@ const formError = document.getElementById('form-error');
 const successBox = document.getElementById('success');
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const MAX_PDF_BYTES = 5 * 1024 * 1024;
-const FILE_HINT = 'Toca para elegir un archivo · máximo 10 MB';
+const FILE_HINT = 'Toca para elegir un archivo · máximo 5 MB';
 
 function fieldError(name, message) {
   const el = document.querySelector('[data-error-for="' + name + '"]');

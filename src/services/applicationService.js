@@ -1,6 +1,6 @@
 'use strict';
 
-const { uploadFile, createItem, readItems } = require('../directus');
+const { uploadFile, createItem, readItems, deleteFile } = require('../directus');
 const { DIRECTUS_COLLECTION } = require('../config');
 
 const POSITIONS_COLLECTION = 'app_positions';
@@ -8,7 +8,8 @@ const CACHE_MS = 5 * 60 * 1000;
 
 /**
  * Servicio de postulaciones sobre Directus.
- * Sin anti-duplicados: el token del formulario no puede leer postulaciones (decisión A).
+ * Duplicados: los rechaza Directus (cédula y correo únicos → RECORD_NOT_UNIQUE).
+ * El token del formulario no puede leer postulaciones.
  */
 function createApplicationService() {
   let cache = { map: null, loadedAt: 0 };
@@ -50,9 +51,14 @@ function createApplicationService() {
         positions: positionIds.map((id) => ({ app_positions_id: id })),
       });
     } catch (err) {
-      // El token no puede borrar archivos: se deja rastro para limpiarlo a mano
-      console.error(`[postulaciones] PDF huérfano en Directus: ${cvId}`);
-      throw err;
+      // Compensación: sin postulación, el PDF no debe quedar en Directus.
+      // El token solo puede borrar sus propios PDFs recientes de "Hojas de vida".
+      try {
+        await deleteFile(cvId);
+      } catch (cleanupErr) {
+        console.error(`[postulaciones] PDF huérfano en Directus: ${cvId} (${cleanupErr.message})`);
+      }
+      throw err; // el error original: de él depende el 409 por cédula o correo repetido
     }
   }
 

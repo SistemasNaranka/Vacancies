@@ -32,7 +32,11 @@ function createApp({ uploadDir = config.UPLOAD_DIR, rateLimitMax = config.RATE_L
   );
   app.use(express.static(path.join(config.rootDir, 'public'), { index: 'index.html' }));
 
-  // Rate limit sobre TODA la API (debe montarse antes de las rutas)
+  // Health va ANTES del rate limit: el health check de Coolify no debe gastar el cupo
+  // ni recibir 429 (eso marcaría el contenedor como caído).
+  app.get('/api/health', (req, res) => res.json({ ok: true }));
+
+  // Rate limit sobre el resto de la API (debe montarse antes de las rutas)
   app.use(
     '/api',
     rateLimit({
@@ -43,8 +47,6 @@ function createApp({ uploadDir = config.UPLOAD_DIR, rateLimitMax = config.RATE_L
       message: { ok: false, message: 'Demasiadas solicitudes. Intenta de nuevo en un minuto.' },
     })
   );
-
-  app.get('/api/health', (req, res) => res.json({ ok: true }));
 
   app.use(createApplicationsRouter({ uploadDir, service }));
 

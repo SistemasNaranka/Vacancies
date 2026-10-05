@@ -63,7 +63,15 @@ function createApplicationsRouter({ uploadDir, service = createApplicationServic
 
   const upload = multer({
     storage: trackingStorage,
-    limits: { fileSize: MAX_PDF_BYTES, files: 1 },
+    // El formulario manda ~10 campos cortos. Topes holgados para un postulante real,
+    // pero que cortan un multipart inflado ANTES de acumularlo en memoria.
+    limits: {
+      fileSize: MAX_PDF_BYTES,
+      files: 1,
+      fields: 20, // cantidad de campos de texto
+      fieldSize: 10 * 1024, // 10 KB por campo (el default es 1 MB)
+      parts: 21, // campos + archivo
+    },
     fileFilter: (req, file, cb) => {
       const isPdfName = /\.pdf$/i.test(file.originalname || '');
       const isPdfMime = file.mimetype === 'application/pdf';

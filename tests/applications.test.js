@@ -158,15 +158,17 @@ test('CA-04: PDF mayor al límite configurado → 413 sin envío ni archivo', as
   assert.deepEqual(storedFiles(uploadDir), []);
 });
 
-test('sin anti-duplicados (decisión A): mismo correo y cargo dos veces → ambos 201', async () => {
-  const { app, service } = makeApp();
+test('correo repetido (Directus RECORD_NOT_UNIQUE en email) → 409 con mensaje de correo', async () => {
+  const duplicate = Object.assign(new Error('duplicado'), {
+    extensions: { code: 'RECORD_NOT_UNIQUE', field: 'email' },
+  });
+  const { app, uploadDir } = makeApp({ failWith: duplicate });
 
-  const first = await postValid(app);
-  const second = await postValid(app);
+  const res = await postValid(app);
 
-  assert.equal(first.status, 201);
-  assert.equal(second.status, 201);
-  assert.equal(service.calls.length, 2);
+  assert.equal(res.status, 409);
+  assert.match(res.body.message, /correo/);
+  assert.deepEqual(storedFiles(uploadDir), []);
 });
 
 test('CA-08: años de experiencia no numéricos o negativos → 400', async () => {
@@ -281,11 +283,25 @@ test('el color de marca coincide entre styles.css y el theme-color de index.html
 test('rate limit: superado el límite responde 429', async () => {
   const { app } = makeApp({ rateLimitMax: 2 });
 
-  await request(app).get('/api/health');
-  await request(app).get('/api/health');
-  const third = await request(app).get('/api/health');
+  // Ruta inexistente bajo /api: pasa por el limitador (404) sin tocar el servicio
+  await request(app).get('/api/no-existe');
+  await request(app).get('/api/no-existe');
+  const third = await request(app).get('/api/no-existe');
 
   assert.equal(third.status, 429);
+});
+
+test('health no consume el rate limit (el health check de Coolify nunca recibe 429)', async () => {
+  const { app } = makeApp({ rateLimitMax: 2 });
+
+  const responses = await Promise.all(
+    Array.from({ length: 5 }, () => request(app).get('/api/health'))
+  );
+  for (const res of responses) assert.equal(res.status, 200);
+
+  // Health no gastó cupo: la API sigue disponible para postulantes
+  const api = await request(app).get('/api/no-existe');
+  assert.equal(api.status, 404);
 });
 
 test('cédula repetida (Directus RECORD_NOT_UNIQUE) → 409 con mensaje claro', async () => {
@@ -298,5 +314,19 @@ test('cédula repetida (Directus RECORD_NOT_UNIQUE) → 409 con mensaje claro', 
 
   assert.equal(res.status, 409);
   assert.match(res.body.message, /documento/);
+  assert.deepEqual(storedFiles(uploadDir), []);
+});
+
+test('multipart inflado (demasiados campos o campo gigante) → 400 sin envío ni archivo', async () => {
+  const { app, service, uploadDir } = makeApp();
+
+  const extra = Object.fromEntries(Array.from({ length: 25 }, (_, i) => [`basura${i}`, 'x']));
+  const tooMany = await postValid(app, extra);
+  assert.equal(tooMany.status, 400);
+
+  const tooBig = await postValid(app, { full_name: 'a'.repeat(11 * 1024) });
+  assert.equal(tooBig.status, 400);
+
+  assert.equal(service.calls.length, 0);
   assert.deepEqual(storedFiles(uploadDir), []);
 });
