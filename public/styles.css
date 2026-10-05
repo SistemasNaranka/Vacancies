@@ -668,3 +668,30 @@ button { font: inherit; cursor: pointer; }
     animation: none !important;
   }
 }
+
+/* Hero con banner: anula el diseño naranja anterior */
+.hero.hero--banner {
+  display: block;
+  padding: 0;
+  background: none;
+  overflow: hidden;
+}
+
+.hero-banner {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Oculta el h1 a la vista, pero lo deja para lectores de pantalla */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
