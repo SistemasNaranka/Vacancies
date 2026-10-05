@@ -564,8 +564,6 @@ button { font: inherit; cursor: pointer; }
   color: #fff;
   border: 0;
   border-radius: var(--radius);
-/* Oscurece en hover: aclarar bajaría el contraste del texto blanco */
-.btn-primary:hover:not(:disabled) { filter: brightness(0.92); }
   background: var(--brand-600);
   box-shadow: var(--shadow-btn);
   transition: transform 0.12s ease, filter 0.18s, box-shadow 0.18s;
