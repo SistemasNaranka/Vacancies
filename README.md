@@ -1,67 +1,68 @@
-# Postulaciones MVP
+# Vacancies — Formulario de postulación
 
-Sitio público donde los candidatos se postulan a vacantes: datos básicos + selección de uno o varios cargos (Gerente, Cajero, Asesor, Auxiliar de Bodega) + hoja de vida en PDF. Sin panel de administración: las postulaciones se consultan directo en SQLite y la carpeta de PDFs.
+Formulario web donde los candidatos se postulan a una vacante: llenan sus datos, eligen un cargo y adjuntan su hoja de vida en PDF. Las postulaciones se guardan en Directus.
 
-Documentación del proyecto (fuente única de verdad): [`docs/`](docs/Project.md).
+## Cómo funciona
+
+1. El candidato llena el formulario (`public/`). El navegador valida los campos antes de enviar.
+2. El servidor vuelve a validar todo y comprueba que el archivo sea un PDF real.
+3. El PDF se sube a Directus y se crea la postulación con sus datos y su cargo.
+4. Si la postulación no se puede crear (por ejemplo, cédula o correo ya registrados), el PDF se borra y el candidato recibe un mensaje claro.
+
+## Estructura
+
+| Archivo | Qué hace |
+|---------|----------|
+| `src/server.js` | Arranca el servidor y verifica las variables obligatorias |
+| `src/app.js` | Configura Express: seguridad, archivos estáticos, límite de peticiones y errores |
+| `src/routes/applications.js` | Recibe el formulario y el PDF, valida y responde |
+| `src/middleware/validate.js` | Reglas de validación de cada campo |
+| `src/services/applicationService.js` | Guarda la postulación en Directus |
+| `src/directus.js` | Cliente HTTP de Directus |
+| `src/config.js` | Variables de entorno y valores fijos (como la lista de cargos) |
+| `public/` | El formulario: `index.html`, `form.js`, `styles.css` |
 
 ## Requisitos
 
-- Node.js LTS ≥ 20
+- Node.js 22
+- Una instancia de Directus con un token que pueda crear postulaciones y subir archivos
 
-## Instalación
+## Instalación y ejecución
 
 ```bash
 npm install
-cp .env.example .env   # opcional: ajusta puerto, rutas y límites
+cp .env.example .env   # completa las variables de Directus
+npm start              # o: npm run dev (recarga automática)
 ```
 
-## Ejecutar
-
-```bash
-npm start              # producción
-npm run dev            # desarrollo con recarga (nodemon)
-```
-
-Abre `http://localhost:3000` (o el puerto de `PORT`).
-
-Desde otro equipo o teléfono en la misma red, usa la IP del servidor, por ejemplo `http://192.168.1.20:3000`. En ese caso la app se sirve por HTTP, que es lo esperado: no actives `ENFORCE_HTTPS` (ver *Variables de entorno*).
+Abre `http://localhost:3000`.
 
 ## Pruebas
 
 ```bash
-npm test               # 23 pruebas: validación, API, duplicados, límites, CSP
+npm test
 ```
 
-## Variables de entorno (`.env`)
+Las pruebas no se conectan a Directus: usan un servicio simulado.
+
+## Variables de entorno
 
 | Variable | Defecto | Descripción |
 |----------|---------|-------------|
+| `DIRECTUS_URL` | — | URL de Directus (obligatoria) |
+| `DIRECTUS_TOKEN` | — | Token de acceso (obligatoria) |
+| `DIRECTUS_CV_FOLDER` | — | ID de la carpeta donde se guardan los PDF (obligatoria) |
 | `PORT` | 3000 | Puerto del servidor |
-| `DB_PATH` | `./data/app.db` | Ruta de la base SQLite |
-| `UPLOAD_DIR` | `./uploads` | Carpeta de los PDFs |
-| `RATE_LIMIT_MAX` | 10 | Peticiones/min por IP en la API |
+| `UPLOAD_DIR` | `./uploads` | Carpeta temporal de los PDF |
+| `RATE_LIMIT_MAX` | 10 | Peticiones por minuto por IP |
 | `MAX_PDF_MB` | 5 | Tamaño máximo del PDF |
-| `TRUST_PROXY` | 1 | Saltos de proxy confiables (para rate limit detrás de proxy) |
-| `ENFORCE_HTTPS` | `0` | `1` solo si el sitio se sirve con HTTPS real. Activa la directiva CSP `upgrade-insecure-requests`; con HTTP plano (LAN o IP pública) deja la página sin CSS ni JS |
+| `TRUST_PROXY` | 1 | Cantidad de proxies delante de la app. Usa `0` si recibe el tráfico directo |
+| `ENFORCE_HTTPS` | `0` | Usa `1` solo si el sitio se sirve con HTTPS |
 
-## Consultar las postulaciones (sin panel)
+## Cambiar los cargos
 
-```bash
-# Datos
-sqlite3 data/app.db "SELECT id, full_name, email, phone, city, years_experience, created_at FROM applications;"
-
-# Cargos de cada postulación
-sqlite3 data/app.db "SELECT a.id, a.email, p.position FROM applications a JOIN application_positions p ON p.application_id = a.id;"
-
-# Descargar un CV (el nombre está en cv_filename)
-ls uploads/
-```
-
-## Mantenimiento
-
-- **Purga a los 6 meses** (RF-10): ver [`scripts/purge.sql`](scripts/purge.sql). Ejecutar manualmente.
-- **Respaldo** (RNF-06): copiar `data/app.db*` y `uploads/` de forma periódica (con el servidor detenido o usando `sqlite3 data/app.db ".backup respaldo.db"`).
+Los cargos están en `src/config.js` y en `public/index.html`; hay que editar ambos. Una prueba verifica que coincidan.
 
 ## Despliegue
 
-Cualquier host con Node ≥20 y disco persistente. Asegura que `data/` y `uploads/` vivan en un volumen persistente y que el host provea HTTPS (RNF-02).
+Incluye un `Dockerfile`. El contenedor escucha en el puerto 3000, y `GET /api/health` sirve como chequeo de salud.
