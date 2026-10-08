@@ -82,6 +82,7 @@
               <option value="Bucaramanga">Bucaramanga</option>
               <option value="Buga">Buga</option>
               <option value="Cali">Cali</option>
+              <option value="Candelaria">Candelaria</option>
               <option value="Cartago">Cartago</option>
               <option value="Ipiales">Ipiales</option>
               <option value="Jamundí">Jamundí</option>
@@ -124,9 +125,10 @@
             <p class="field-error" data-error-for="positions" aria-live="polite"></p>
           </div>
 
+          <!-- 🎯 AÑOS DE EXPERIENCIA — Empieza en 1, sin 0 -->
           <div class="field field-float">
-            <input id="years_experience" name="years_experience" type="number" inputmode="numeric" min="0" max="99"
-              step="1" placeholder="Ej. 3" required>
+            <input id="years_experience" name="years_experience" type="number" inputmode="numeric" min="1" max="99"
+              step="1" value="" placeholder="Ej. 3" required>
             <label for="years_experience" class="float-label">Años de experiencia <span class="req">*</span></label>
             <p class="field-error" data-error-for="years_experience" aria-live="polite"></p>
           </div>

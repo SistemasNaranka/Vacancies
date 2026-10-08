@@ -1,13 +1,14 @@
 :root {
   color-scheme: light;
 
-  /* Marca — Naranja Quemado y su escala derivada (~22°) */
+  /* Marca — Naranja Quemado y su escala deri(~22°) */
   --brand-rgb: 216, 83, 33;
   --brand-50: #fef4ef;
   --brand-100: #fce4d8;
   --brand-200: #f9c5ae;
   --brand-500: #e8652e;
-  --brand-600: #d85321; /* color corporativo */
+  --brand-600: #d85321;
+  /* color corporativo */
   --brand-700: #b8431a;
   --brand-800: #8f3312;
 
@@ -44,9 +45,13 @@
 
 *,
 *::before,
-*::after { box-sizing: border-box; }
+*::after {
+  box-sizing: border-box;
+}
 
-html { -webkit-text-size-adjust: 100%; }
+html {
+  -webkit-text-size-adjust: 100%;
+}
 
 body {
   margin: 0;
@@ -144,7 +149,7 @@ body {
   border: 0;
 }
 
-.group + .group {
+.group+.group {
   padding-top: 1.25rem;
   border-top: 1px dashed var(--line);
 }
@@ -177,7 +182,9 @@ body {
   border: 0;
 }
 
-.field:last-child { margin-bottom: 0; }
+.field:last-child {
+  margin-bottom: 0;
+}
 
 label:not(.chip):not(.file-drop):not(.float-label):not(.consent-box),
 legend {
@@ -189,8 +196,16 @@ legend {
   color: var(--ink-900);
 }
 
-.req { color: var(--danger); font-weight: 700; }
-.optional { font-weight: 400; font-size: 0.82rem; color: var(--ink-400); }
+.req {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.optional {
+  font-weight: 400;
+  font-size: 0.82rem;
+  color: var(--ink-400);
+}
 
 input[type='text'],
 input[type='email'],
@@ -200,7 +215,8 @@ select {
   width: 100%;
   padding: 0.8rem 0.9rem;
   font: inherit;
-  font-size: 16px; /* evita el zoom automático en iOS */
+  font-size: 16px;
+  /* evita el zoom automático en iOS */
   color: var(--ink-900);
   background: #fff;
   border: 1.5px solid var(--line-strong);
@@ -213,7 +229,9 @@ select {
 input[type='text']::placeholder,
 input[type='email']::placeholder,
 input[type='tel']::placeholder,
-input[type='number']::placeholder { color: var(--ink-400); }
+input[type='number']::placeholder {
+  color: var(--ink-400);
+}
 
 input[type='text']:focus,
 input[type='email']:focus,
@@ -227,7 +245,9 @@ select:focus {
 
 /* ---------- Etiqueta flotante ---------- */
 
-.field-float { position: relative; }
+.field-float {
+  position: relative;
+}
 
 .field-float input,
 .field-float select {
@@ -244,8 +264,13 @@ select:focus {
   background-size: 1.1rem;
 }
 
-.field-float input::placeholder { color: transparent; }
-.field-float input:focus::placeholder { color: var(--ink-400); }
+.field-float input::placeholder {
+  color: transparent;
+}
+
+.field-float input:focus::placeholder {
+  color: var(--ink-400);
+}
 
 .float-label {
   position: absolute;
@@ -263,10 +288,10 @@ select:focus {
   transition: top 0.15s, font-size 0.15s, color 0.15s;
 }
 
-.field-float input:focus + .float-label,
-.field-float input:not(:placeholder-shown) + .float-label,
-.field-float select:focus + .float-label,
-.field-float select:valid + .float-label {
+.field-float input:focus+.float-label,
+.field-float input:not(:placeholder-shown)+.float-label,
+.field-float select:focus+.float-label,
+.field-float select:valid+.float-label {
   top: 0.35rem;
   font-size: 0.74rem;
   font-weight: 600;
@@ -274,13 +299,22 @@ select:focus {
   color: var(--brand-600);
 }
 
-.field-float input:focus + .float-label,
-.field-float select:focus + .float-label { color: var(--brand-600); }
-.field-float .invalid + .float-label { color: var(--danger); }
-.float-label .optional { font-size: 0.85em; }
+.field-float input:focus+.float-label,
+.field-float select:focus+.float-label {
+  color: var(--brand-600);
+}
+
+.field-float .invalid+.float-label {
+  color: var(--danger);
+}
+
+.float-label .optional {
+  font-size: 0.85em;
+}
 
 /* Lista desplegable personalizada (Chrome/Edge 135+). El resto usa la nativa. */
 @supports (appearance: base-select) {
+
   .field-float select,
   .field-float select::picker(select) {
     appearance: base-select;
@@ -303,7 +337,9 @@ select:focus {
     transition: rotate 0.2s;
   }
 
-  .field-float select:open::picker-icon { rotate: 180deg; }
+  .field-float select:open::picker-icon {
+    rotate: 180deg;
+  }
 
   .field-float select::picker(select) {
     margin-top: 6px;
@@ -350,11 +386,15 @@ select:focus {
   margin-bottom: 1rem;
 }
 
-.field-row .field { margin-bottom: 0; }
+.field-row .field {
+  margin-bottom: 0;
+}
 
 /* ---------- Chips de cargos ---------- */
 
-.positions { margin-bottom: 0; }
+.positions {
+  margin-bottom: 0;
+}
 
 .chip-group {
   display: flex;
@@ -380,7 +420,9 @@ select:focus {
   transition: border-color 0.15s, background 0.15s, color 0.15s, box-shadow 0.15s;
 }
 
-.chip:hover { border-color: var(--brand-600); }
+.chip:hover {
+  border-color: var(--brand-600);
+}
 
 .chip input[type='checkbox'],
 .consent-box input[type='checkbox'] {
@@ -451,15 +493,48 @@ select:focus {
   transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
 
-.file-drop:hover { border-color: var(--brand-600); background: var(--brand-50); }
-.file-drop:focus-within { border-color: var(--brand-600); box-shadow: 0 0 0 4px var(--brand-100); }
-.file-drop.has-file { border-style: solid; border-color: var(--success); background: var(--success-bg); }
-.file-drop-icon .icon-check { display: none; }
-.file-drop.has-file .file-drop-icon { color: #fff; background: var(--success); }
-.file-drop.has-file .icon-upload { display: none; }
-.file-drop.has-file .icon-check { display: block; }
-.file-drop.has-file .file-drop-text small { color: var(--success); font-weight: 600; }
-.field.has-error .file-drop { border-color: var(--danger); background: var(--danger-bg); }
+.file-drop:hover {
+  border-color: var(--brand-600);
+  background: var(--brand-50);
+}
+
+.file-drop:focus-within {
+  border-color: var(--brand-600);
+  box-shadow: 0 0 0 4px var(--brand-100);
+}
+
+.file-drop.has-file {
+  border-style: solid;
+  border-color: var(--success);
+  background: var(--success-bg);
+}
+
+.file-drop-icon .icon-check {
+  display: none;
+}
+
+.file-drop.has-file .file-drop-icon {
+  color: #fff;
+  background: var(--success);
+}
+
+.file-drop.has-file .icon-upload {
+  display: none;
+}
+
+.file-drop.has-file .icon-check {
+  display: block;
+}
+
+.file-drop.has-file .file-drop-text small {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.field.has-error .file-drop {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+}
 
 .file-drop input[type='file'] {
   position: absolute;
@@ -485,7 +560,10 @@ select:focus {
   background: var(--brand-100);
 }
 
-.file-drop-icon svg { width: 1.35rem; height: 1.35rem; }
+.file-drop-icon svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
 
 .file-drop-text {
   display: flex;
@@ -494,7 +572,11 @@ select:focus {
   min-width: 0;
 }
 
-.file-drop-text strong { font-size: 0.94rem; color: var(--ink-900); }
+.file-drop-text strong {
+  font-size: 0.94rem;
+  color: var(--ink-900);
+}
+
 .file-drop-text small {
   font-size: 0.8rem;
   color: var(--ink-500);
@@ -518,9 +600,19 @@ select:focus {
   transition: border-color 0.15s, background 0.15s;
 }
 
-.consent-box input[type='checkbox'] { margin-top: 0.1rem; }
-.consent-box:has(input:checked) { border-color: var(--brand-600); background: var(--brand-50); }
-.field.has-error .consent-box { border-color: var(--danger); background: var(--danger-bg); }
+.consent-box input[type='checkbox'] {
+  margin-top: 0.1rem;
+}
+
+.consent-box:has(input:checked) {
+  border-color: var(--brand-600);
+  background: var(--brand-50);
+}
+
+.field.has-error .consent-box {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+}
 
 /* ---------- Mensajes ---------- */
 
@@ -531,7 +623,9 @@ select:focus {
   color: var(--danger);
 }
 
-.field-error:empty { display: none; }
+.field-error:empty {
+  display: none;
+}
 
 .form-error {
   display: none;
@@ -546,11 +640,16 @@ select:focus {
   border-radius: var(--radius-sm);
 }
 
-.form-error:not(:empty) { display: block; }
+.form-error:not(:empty) {
+  display: block;
+}
 
 /* ---------- Botones ---------- */
 
-button { font: inherit; cursor: pointer; }
+button {
+  font: inherit;
+  cursor: pointer;
+}
 
 .btn-primary {
   display: block;
@@ -566,14 +665,30 @@ button { font: inherit; cursor: pointer; }
   border-radius: var(--radius);
   background: var(--brand-600);
   box-shadow: var(--shadow-btn);
-  transition: transform 0.12s ease, filter 0.18s, box-shadow 0.18s;
+  transition: transform 0.12s ease,
+  filter 0.18s,
+  box-shadow 0.18s;
   -webkit-tap-highlight-color: transparent;
 }
 
-.btn-primary:hover:not(:disabled) { background: var(--brand-700); }
-.btn-primary:active:not(:disabled) { transform: translateY(1px); }
-.btn-primary:focus-visible { outline: 3px solid var(--brand-600); outline-offset: 2px; }
-.btn-primary:disabled { opacity: 0.65; cursor: wait; box-shadow: none; }
+.btn-primary:hover:not(:disabled) {
+  background: var(--brand-700);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn-primary:focus-visible {
+  outline: 3px solid var(--brand-600);
+  outline-offset: 2px;
+}
+
+.btn-primary:disabled {
+  opacity: 0.65;
+  cursor: wait;
+  box-shadow: none;
+}
 
 .btn-secondary {
   display: block;
@@ -588,8 +703,15 @@ button { font: inherit; cursor: pointer; }
   transition: background 0.15s, border-color 0.15s;
 }
 
-.btn-secondary:hover { background: var(--brand-50); border-color: var(--brand-500); }
-.btn-secondary:focus-visible { outline: 3px solid var(--brand-200); outline-offset: 2px; }
+.btn-secondary:hover {
+  background: var(--brand-50);
+  border-color: var(--brand-500);
+}
+
+.btn-secondary:focus-visible {
+  outline: 3px solid var(--brand-200);
+  outline-offset: 2px;
+}
 
 /* ---------- Confirmación ---------- */
 
@@ -612,7 +734,10 @@ button { font: inherit; cursor: pointer; }
   border-radius: 50%;
 }
 
-.success-icon svg { width: 1.6rem; height: 1.6rem; }
+.success-icon svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
 
 .success h2 {
   margin: 0 0 0.4rem;
@@ -644,21 +769,41 @@ button { font: inherit; cursor: pointer; }
   color: var(--ink-400);
 }
 
-.site-footer p { margin: 0; }
+.site-footer p {
+  margin: 0;
+}
 
-.hidden { display: none !important; }
+.hidden {
+  display: none !important;
+}
 
 /* ---------- Pantallas amplias ---------- */
 
 @media (min-width: 600px) {
-  body { padding: 2.5rem 1.5rem 4rem; }
-  .hero { padding: 1.6rem 1.7rem; }
-  .hero h1 { font-size: 1.6rem; }
-  .hero-logo { width: 5rem; height: 5rem; }
-  .card { padding: 1.9rem 1.8rem 2rem; }
+  body {
+    padding: 2.5rem 1.5rem 4rem;
+  }
+
+  .hero {
+    padding: 1.6rem 1.7rem;
+  }
+
+  .hero h1 {
+    font-size: 1.6rem;
+  }
+
+  .hero-logo {
+    width: 5rem;
+    height: 5rem;
+  }
+
+  .card {
+    padding: 1.9rem 1.8rem 2rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
