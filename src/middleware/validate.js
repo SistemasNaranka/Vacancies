@@ -10,8 +10,8 @@ const DOCUMENT_TYPES = ['CC', 'PPT'];
 const DOCUMENT_NUMBER_RE = /^[A-Z0-9]{5,20}$/;
 const EDUCATION_LEVELS = ['bachiller', 'tecnico_tecnologo', 'profesional'];
 const CITIES = [
-  'Armenia', 'Bucaramanga', 'Buga', 'Cali', 'Cartago', 'Ipiales', 'Jamundí',
-  'Manizales', 'Palmira', 'Pasto', 'Pereira', 'Popayán', 'Tuluá', 'Yumbo',
+  'Armenia', 'Bucaramanga', 'Buga', 'Cali', 'Candelaria', 'Cartago', 'Ipiales',
+  'Jamundí', 'Manizales', 'Palmira', 'Pasto', 'Pereira', 'Popayán', 'Tuluá', 'Yumbo',
 ];
 // Debe coincidir con el texto de la casilla en public/index.html
 const CONSENT_TEXT = 'Autorizo a Naranka S.A.S. (KanCan) a tratar mis datos personales y mi hoja de vida para este proceso de selección.';
